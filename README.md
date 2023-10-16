@@ -1,4 +1,26 @@
-### Paso 1: Importing Libraries and Packages
+### Contenido
+- [Introducción](#introduccion)
+- [Código](#codigo)
+- [Importando librerías y paquetes](#importando-librerias-y-paquetes)
+- [Cargando y visualizando los datos](#cargando-y-visualizando-los-datos)
+- [Lidiando con valores no numéricos (Imputación)](#lidiando-con-valores-no-numericos-imputacion)
+- [Graficando y visualizando datos](#graficando-y-visualizando-datos)
+- [Ingeniería de atributos](#ingenieria-de-atributos)
+- [Ajuste del modelo, optimización y predicción](#ajuste-del-modelo-optimizacion-y-prediccion)
+
+
+### Introducción
+En este artículo, realizaremos un análisis de los datos disponibles en el conjunto "Titanic", publicado en [Kaggle](https://www.kaggle.com/competitions/titanic/data). Se describirá el uso de las librerías *numpy*, *pandas*, *seaborn*, *matplotlib* y *scikit-learn* para el análisis, modificación y visualización de los datos.
+Luego, produciremos un modelo de aprendizaje automático, capaz de realizar predicciones, utilizando el conjunto de datos ya procesado.
+
+El objetivo final será generar una comprensión profunda del conjunto de datos, el problema al que están relacionados y su posible utilización en el entrenamiento de modelos de aprendizaje automático, después de su adaptación adecuada. También se buscará generar una comprensión de las herramientas de Python utilizadas para construir modelos de aprendizaje automático.
+
+### Código
+El código utilizado para el análisis realizado en este caso de estudio está disponible en el siguiente repositorio:
+
+https://github.com/WalterTano/ml-titanic-py-analysis
+
+### Importando librerías y paquetes
 
 El primer paso consiste en instalar e importar todas las librerías y paquetes necesarios para el resto del tutorial. Los paquetes que debemos instalar (es decir, no son incluidos por defecto cuando instalamos Python) son:
 
@@ -18,7 +40,7 @@ Finalmente, ejecutamos el código incluído en el blog para obtener la siguiente
 
 ![Untitled](https://www.datocms-assets.com/106983/1696363088-ut2-pd4-1.png)
 
-### Paso 2: Loading and Viewing Data Set
+### Cargando y visualizando los datos
 
 En este paso cargamos los datos desde el sistema de archivos utilizando funciones de la librería ***pandas***.
 
@@ -28,7 +50,7 @@ Al inspeccionar las primeras filas con la función *head*, encontramos que los d
 
 ![Untitled](https://www.datocms-assets.com/106983/1696363097-ut2-pd4-3.png)
 
-### Paso 3: Dealing with NaN Values (Imputation)
+### Lidiando con valores no numéricos (Imputación)
 
 Al inspeccionar los datos, podemos encontrar valores faltantes en la columna de la edad (***Age***) y el número de cabina (***cabin***) principalmente. Estos valores faltantes generarán problemas a la hora de construir nuestro modelo, por lo que necesitamos rellenarlos.
 
@@ -52,7 +74,7 @@ Ya que en el gráfico podemos observar una leve inclinación hacia la derecha (e
 
 ![Untitled](https://www.datocms-assets.com/106983/1696363124-ut2-pd4-9.png)
 
-### Paso 4: Plotting and Visualizing Data
+### Graficando y visualizando datos
 
 Para tener un mejor entendimiento de los datos, su distribución y sus correlaciones, es importante ser capaces de visualizarlos adecuadamente. Aprovechando las librerías importadas, vamos a generar diferentes ilustraciones de la información disponible.
 
@@ -112,7 +134,7 @@ Finalmente, generamos una compilación de gráficos con las relaciones entre los
 
 ![Figure_1.png](https://www.datocms-assets.com/106983/1696363077-ut2-pd4-figure_1-7.png)
 
-### Paso 5: Feature Engineering
+### Ingeniería de atributos
 
 Para poder usar estos datos en nuestro modelo, será necesario convertir los atributos ***sex*** y ***embarked*** a valores númericos. Para esto, ya que el sexo es un atributo binario, lo reemplazaremos con 1s y 0s, donde 1 es para género femenino y 0 para masculino. Por otro lado, los valores del campo ***embarked*** son 3: S, C y Q, por lo que una conversión similar es posible. A los valores mencionados anteriormente se le asignan los siguientes valores númericos respectivamente: 0, 1 y 2.
 
@@ -124,7 +146,7 @@ Para realizar esta conversión de datos, aprovecharemos la librería *scikit-lea
 
 Podemos observar que los valores de los atributos ***sex*** y ***embarked*** han sido transformados a sus correspondientes númericos como definimos previamente.
 
-**Creating Synthetic Features**
+**Creando atributos derivados**
 
 Puede ser útil generar atributos que creemos que puedan ser de utilidad para nuestro modelo, tomando como base los datos existentes.
 
@@ -160,5 +182,144 @@ Habiendo extraído esta información, el campo ***name*** se vuelve innecesario,
 
 ![Untitled](https://www.datocms-assets.com/106983/1696363045-ut2-pd4-31.png)
 
-Con todos los atributos convertidos a valores numéricos, nuestros datos ya están técnicamente listos para utilizarlos para entrenar y probar nuestro modelo. Sin embargo, para garantizar la calidad del mismo, todavía deberíamos reescalar los valores de los campos de *age* y ***fare***, por su amplio rango.
+Con todos los atributos convertidos a valores numéricos, nuestros datos ya están técnicamente listos para utilizarlos para entrenar y probar nuestro modelo. Sin embargo, para garantizar la calidad del mismo, todavía deberíamos reescalar los valores de los campos de ***age*** y ***fare***, por su amplio rango.
 
+Podemos realizar este reescalado utilizando un StandardScaler de la librería *sklearn.preprocessing*.
+![Untitled](https://www.datocms-assets.com/106983/1697495743-ut2-pd4-32.png)
+![Untitled](https://www.datocms-assets.com/106983/1697495865-ut2-pd4-33.png)
+
+### Ajuste del modelo, optimización y predicción
+Habiendo procesado nuestros datos adecuadamente y teniendo un entendimiento profundo del problema, podemos empezar a construir nuestro modelo de aprendizaje automático. 
+La librería *sklearn* nos facilita varios algoritmos para modelos de aprendizaje automático, por lo que probaremos varios para comparar resultados y quedarnos con el de mayor eficiencia.
+
+Entre los algoritmos a utilizar se encuentran:
+- Regresión Logística 
+(```from sklearn.linear_model import LogisticRegression```)
+- K Vecinos más Cercanos (K-NN)
+(```from sklearn.neighbors import KNeighborsClassifier```)
+- Naive Bayes Gaussiano
+(```from sklearn.naive_bayes import GaussianNB```)
+- Árbol de Decisiones
+(```from sklearn.tree import DecisionTreeClassifier```)
+
+Para evaluar el rendimiento de estos modelos, podemos usar las funciones *make_scorer* y *accuracy_score* de la librería *sklearn.metrics*.
+
+```
+from sklearn.metrics import make_scorer, accuracy_score
+```
+
+Y también haremos uso de la clase *GridSearchCV* de la librería *sklearn.model_selection* para realizar validaciones cruzadas y así encontrar los parámetros óptimos para nuestro modelo para nuestro conjunto de datos de prueba.
+
+A continuación, definimos algunas variables con los atributos a usar para entrenar y probar nuestros modelos.
+
+```
+X_train = training.drop(labels=["PassengerId", "Survived"], axis=1)
+y_train = training["Survived"]
+X_test = testing.drop("PassengerId", axis=1)
+```
+
+Para evitar que nuestro modelo se sobreajuste al conjunto de datos de prueba que tenemos, y para validar su eficiencia general, generaremos un tercer conjunto de datos para validación. Podemos generarlo con la función *train_test_split* de la librería *sklearn.model_selection*.
+
+```
+from sklearn.model_selection import train_test_split
+
+X_training, X_valid, y_training, y_valid = train_test_split(X_train, y_train, test_size=0.2, random_state=0)
+```
+
+#### Modelos
+
+##### Regresión Logística
+
+```
+logreg_clf = LogisticRegression()
+
+parameters_logreg = {"penalty": ["l2"], "fit_intercept": [True, False], "solver": ["newton-cg", "lbfgs", "liblinear", "sag", "saga"],
+                     "max_iter": [50, 100, 200], "warm_start": [True, False]}
+
+grid_logreg = GridSearchCV(logreg_clf, parameters_logreg, scoring=make_scorer(accuracy_score))
+grid_logreg.fit(X_training, y_training)
+
+logreg_clf = grid_logreg.best_estimator_
+
+logreg_clf.fit(X_training, y_training)
+pred_logreg = logreg_clf.predict(X_valid)
+acc_logreg = accuracy_score(y_valid, pred_logreg)
+```
+
+##### K Vecinos más Cercanos (K-NN)
+
+```
+knn_clf = KNeighborsClassifier()
+
+parameters_knn = {"n_neighbors": [3, 5, 10, 15], "weights": ["uniform", "distance"], "algorithm": ["auto", "ball_tree", "kd_tree"],
+                  "leaf_size": [20, 30, 50]}
+
+grid_knn = GridSearchCV(knn_clf, parameters_knn, scoring=make_scorer(accuracy_score))
+grid_knn.fit(X_training, y_training)
+
+knn_clf = grid_knn.best_estimator_
+
+knn_clf.fit(X_training, y_training)
+pred_knn = knn_clf.predict(X_valid)
+acc_knn = accuracy_score(y_valid, pred_knn)
+```
+
+##### Naive Bayes Gaussiano
+
+```
+gnb_clf = GaussianNB()
+
+parameters_gnb = {}
+
+grid_gnb = GridSearchCV(gnb_clf, parameters_gnb, scoring=make_scorer(accuracy_score))
+grid_gnb.fit(X_training, y_training)
+
+gnb_clf = grid_gnb.best_estimator_
+
+gnb_clf.fit(X_training, y_training)
+pred_gnb = gnb_clf.predict(X_valid)
+acc_gnb = accuracy_score(y_valid, pred_gnb)
+```
+
+##### Árbol de Decisiones
+
+```
+dt_clf = DecisionTreeClassifier()
+
+parameters_dt = {"criterion": ["gini", "entropy"], "splitter": ["best", "random"], "max_features": ["auto", "sqrt", "log2"]}
+
+grid_dt = GridSearchCV(dt_clf, parameters_dt, scoring=make_scorer(accuracy_score))
+grid_dt.fit(X_training, y_training)
+
+dt_clf = grid_dt.best_estimator_
+
+dt_clf.fit(X_training, y_training)
+pred_dt = dt_clf.predict(X_valid)
+acc_dt = accuracy_score(y_valid, pred_dt)
+```
+
+#### Resultados
+
+```
+model_performance = pd.DataFrame({
+    "Modelo": [
+        "Regresión Logística", 
+        "K Vecinos más Cercanos", 
+        "Naive Bayes Gaussiano",  
+        "Árbol de Decisiones"
+    ],
+    "Precisión": [ acc_logreg, acc_knn, acc_gnb, acc_dt ]
+})
+
+print(model_performance.sort_values(by="Precisión", ascending=False))
+```
+
+```
+                   Modelo   Precisión
+0     Regresión Logística   0.804469
+2   Naive Bayes Gaussiano   0.776536
+3     Árbol de Decisiones   0.770950
+1  K Vecinos más Cercanos   0.765363
+```
+
+Como podemos ver, con una precisión del 80% en las predicciones, el mejor modelo de los elegidos para realizar predicciones sobre este problema sería el de Regresión Logística.

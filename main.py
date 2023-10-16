@@ -1,5 +1,12 @@
 import numpy as np 
 import pandas as pd 
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import make_scorer, accuracy_score
+from sklearn.model_selection import GridSearchCV, train_test_split
 
 import seaborn as sns
 from matplotlib import pyplot as plt
@@ -45,7 +52,7 @@ null_table(training, testing)
 copy = training.copy()
 copy.dropna(inplace = True)
 sns.distplot(copy["Age"])
-plt.show()
+#plt.show()
 
 #the median will be an acceptable value to place in the NaN cells
 training["Age"].fillna(training["Age"].median(), inplace = True)
@@ -57,7 +64,7 @@ null_table(training, testing)
 
 sns.barplot(x="Sex", y="Survived", data=training)
 plt.title("Distribution of Survival based on Gender")
-plt.show()
+#plt.show()
 
 total_survived_females = training[training.Sex == "female"]["Survived"].sum()
 total_survived_males = training[training.Sex == "male"]["Survived"].sum()
@@ -71,7 +78,7 @@ print(total_survived_males/(total_survived_females + total_survived_males))
 sns.barplot(x="Pclass", y="Survived", data=training)
 plt.ylabel("Survival Rate")
 plt.title("Distribution of Survival Based on Class")
-plt.show()
+#plt.show()
 
 total_survived_one = training[training.Pclass == 1]["Survived"].sum()
 total_survived_two = training[training.Pclass == 2]["Survived"].sum()
@@ -89,12 +96,12 @@ print(total_survived_three/total_survived_class)
 sns.barplot(x="Pclass", y="Survived", hue="Sex", data=training)
 plt.ylabel("Survival Rate")
 plt.title("Survival Rates Based on Gender and Class")
-plt.show()
+#plt.show()
 
 sns.barplot(x="Sex", y="Survived", hue="Pclass", data=training)
 plt.ylabel("Survival Rate")
 plt.title("Survival Rates Based on Gender and Class")
-plt.show()
+#plt.show()
 
 survived_ages = training[training.Survived == 1]["Age"]
 not_survived_ages = training[training.Survived == 0]["Age"]
@@ -108,13 +115,13 @@ sns.distplot(not_survived_ages, kde=False)
 plt.axis([0, 100, 0, 100])
 plt.title("Didn't Survive")
 plt.subplots_adjust(right=1.7)
-plt.show()
+#plt.show()
 
 sns.stripplot(x="Survived", y="Age", data=training, jitter=True)
-plt.show()
+#plt.show()
 
 #sns.pairplot(training)
-plt.show()
+#plt.show()
 
 print(training.sample(5))
 
@@ -198,3 +205,100 @@ testing.drop("Name", axis = 1, inplace = True)
 
 print(training.sample(5))
 print(testing.sample(5))
+
+
+scaler = StandardScaler()
+
+ages_train = np.array(training["Age"]).reshape(-1, 1)
+fares_train = np.array(training["Fare"]).reshape(-1, 1)
+ages_test = np.array(testing["Age"]).reshape(-1, 1)
+fares_test = np.array(testing["Fare"]).reshape(-1, 1)
+
+training["Age"] = scaler.fit_transform(ages_train)
+training["Fare"] = scaler.fit_transform(fares_train)
+testing["Age"] = scaler.fit_transform(ages_test)
+testing["Fare"] = scaler.fit_transform(fares_test)
+
+print(training.head())
+print(testing.head())
+
+X_train = training.drop(labels=["PassengerId", "Survived"], axis=1) #define training features set
+y_train = training["Survived"] #define training label set
+X_test = testing.drop("PassengerId", axis=1) #define testing features set
+#we don't have y_test, that is what we're trying to predict with our model
+
+X_training, X_valid, y_training, y_valid = train_test_split(X_train, y_train, test_size=0.2, random_state=0)
+
+logreg_clf = LogisticRegression()
+
+parameters_logreg = {"penalty": ["l2"], "fit_intercept": [True, False], "solver": ["newton-cg", "lbfgs", "liblinear", "sag", "saga"],
+                     "max_iter": [50, 100, 200], "warm_start": [True, False]}
+
+grid_logreg = GridSearchCV(logreg_clf, parameters_logreg, scoring=make_scorer(accuracy_score))
+grid_logreg.fit(X_training, y_training)
+
+logreg_clf = grid_logreg.best_estimator_
+
+logreg_clf.fit(X_training, y_training)
+pred_logreg = logreg_clf.predict(X_valid)
+acc_logreg = accuracy_score(y_valid, pred_logreg)
+
+print(f'El puntaje del modelo de regresión logística es: {str(acc_logreg)}')
+
+knn_clf = KNeighborsClassifier()
+
+parameters_knn = {"n_neighbors": [3, 5, 10, 15], "weights": ["uniform", "distance"], "algorithm": ["auto", "ball_tree", "kd_tree"],
+                  "leaf_size": [20, 30, 50]}
+
+grid_knn = GridSearchCV(knn_clf, parameters_knn, scoring=make_scorer(accuracy_score))
+grid_knn.fit(X_training, y_training)
+
+knn_clf = grid_knn.best_estimator_
+
+knn_clf.fit(X_training, y_training)
+pred_knn = knn_clf.predict(X_valid)
+acc_knn = accuracy_score(y_valid, pred_knn)
+
+print(f'El puntaje del modelo de K Vecinos más Cercanos es: {str(acc_knn)}')
+
+gnb_clf = GaussianNB()
+
+parameters_gnb = {}
+
+grid_gnb = GridSearchCV(gnb_clf, parameters_gnb, scoring=make_scorer(accuracy_score))
+grid_gnb.fit(X_training, y_training)
+
+gnb_clf = grid_gnb.best_estimator_
+
+gnb_clf.fit(X_training, y_training)
+pred_gnb = gnb_clf.predict(X_valid)
+acc_gnb = accuracy_score(y_valid, pred_gnb)
+
+print(f'El puntaje del modelo de Naive Bayes Gaussiano es: {str(acc_gnb)}')
+
+dt_clf = DecisionTreeClassifier()
+
+parameters_dt = {"criterion": ["gini", "entropy"], "splitter": ["best", "random"], "max_features": ["auto", "sqrt", "log2"]}
+
+grid_dt = GridSearchCV(dt_clf, parameters_dt, scoring=make_scorer(accuracy_score))
+grid_dt.fit(X_training, y_training)
+
+dt_clf = grid_dt.best_estimator_
+
+dt_clf.fit(X_training, y_training)
+pred_dt = dt_clf.predict(X_valid)
+acc_dt = accuracy_score(y_valid, pred_dt)
+
+print(f'El puntaje del modelo de Árbol de Decisiones es: {str(acc_dt)}')
+
+model_performance = pd.DataFrame({
+    "Modelo": [
+        "Regresión Logística", 
+        "K Vecinos más Cercanos", 
+        "Naive Bayes Gaussiano",  
+        "Árbol de Decisiones"
+    ],
+    "Precisión": [ acc_logreg, acc_knn, acc_gnb, acc_dt ]
+})
+
+print(model_performance.sort_values(by="Precisión", ascending=False))
